@@ -32,7 +32,6 @@ developing applications that use %{name}.
 
 %build
 # TODO
-#make %{?_smp_mflags}
 
 
 %install
@@ -69,13 +68,18 @@ fi
 cp %{_tmppath}/SZip.tar.gz %{_tmppath}/ZLib.tar.gz \
     %{_tmppath}/hdf5-${HDF5_VER}.tar.gz .
 
-if [ ! -f "cgnslib_${CGNSLIB_VER}.tar.gz" ]; then
-  wget --no-check-certificate https://downloads.sourceforge.net/project/cgns/cgnslib_3.2/cgnslib_${CGNSLIB_VER}.tar.gz
+if [ ! -f "%{_tmppath}/cgnslib_${CGNSLIB_VER}.tar.gz" ]; then
+  wget --no-check-certificate \
+      -O %{_tmppath}/cgnslib_${CGNSLIB_VER}.tar.gz \
+      https://downloads.sourceforge.net/project/cgns/cgnslib_3.2/cgnslib_${CGNSLIB_VER}.tar.gz
 fi
+cp %{_tmppath}/cgnslib_${CGNSLIB_VER}.tar.gz .
 
-if [ ! -f "iriclib-${IRICLIB_VER:0:7}.zip" ]; then
-  wget --no-check-certificate https://github.com/i-RIC/iriclib/archive/${IRICLIB_VER}.zip --output-document=iriclib-${IRICLIB_VER:0:7}.zip
+if [ ! -f "%{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip" ]; then
+  wget --no-check-certificate -O iriclib-${IRICLIB_VER:0:7}.zip \
+      https://github.com/i-RIC/iriclib/archive/${IRICLIB_VER}.zip
 fi
+cp %{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip .
 
 ./build-gcc-solver.sh
 
