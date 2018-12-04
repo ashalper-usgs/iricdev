@@ -85,9 +85,10 @@ for lib in `ls -1 lib/install`; do
     cp -R $lib_src_dir/* master/external
 done
 
-install -d $RPM_BUILD_ROOT%{_libdir}
+install -d $RPM_BUILD_ROOT%{_libdir} $RPM_BUILD_ROOT%{_includedir}
 install lib/install/iriclib-a6a110f/release/lib/libiriclib.so $RPM_BUILD_ROOT%{_libdir}
-find -type f -and -name '*iric*' -and -not -name '*iric*.so*'
+install lib/install/iriclib-a6a110f/release/include/*iric*.h $RPM_BUILD_ROOT%{_includedir}
+find -type f -and -name '*iric*' -and -not -name '*iric*.*o*'
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 %post -p /sbin/ldconfig
@@ -101,7 +102,7 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 %files devel
 %doc
-#%{_includedir}/*
+%{_includedir}/*
 #%{_libdir}/*.so
 
 
