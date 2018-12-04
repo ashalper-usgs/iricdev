@@ -28,6 +28,12 @@ developing applications that use %{name}.
 
 %prep
 %setup -q -n master
+rm -rf master/external
+mkdir -p master/external
+
+cp /root/Fastmech-BMI/bin/build-gcc-solver.sh .
+cp /root/Fastmech-BMI/bin/create-paths-pri-solver.sh .
+cp /root/Fastmech-BMI/bin/create-dirExt-prop-solver.sh .
 
 
 %build
@@ -36,20 +42,6 @@ developing applications that use %{name}.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-# Build the iricdev library used by Fastmech. The install directory
-# for the libraries is passed as an argument.
-dst_dir=`pwd`/external
-if [ -d $dst_dir ]; then
-    echo "Destination ($dst_dir) exists -- done"
-    exit 0
-else
-    mkdir -p $dst_dir
-fi
-
-src_dir=$PWD/lib/install
-cp /root/Fastmech-BMI/bin/build-gcc-solver.sh .
-cp /root/Fastmech-BMI/bin/create-paths-pri-solver.sh .
-cp /root/Fastmech-BMI/bin/create-dirExt-prop-solver.sh .
 
 . ./versions.sh
 
@@ -83,20 +75,18 @@ cp %{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip .
 
 ./build-gcc-solver.sh
 
-echo "src: $src_dir"
-echo "dst: $dst_dir"
-for lib in `ls -1 $src_dir`; do
+for lib in `ls -1 lib/install`; do
     echo "- $lib"
-    if [ -d $src_dir/$lib/release ]; then
-    	lib_src_dir=$src_dir/$lib/release
+    if [ -d lib/install/$lib/release ]; then
+    	lib_src_dir=lib/install/$lib/release
     else
-    	lib_src_dir=$src_dir/$lib
+    	lib_src_dir=lib/install/$lib
     fi
-    cp -R $lib_src_dir/* $dst_dir
+    cp -R $lib_src_dir/* master/external
 done
 
 install -d $RPM_BUILD_ROOT
-find %{_topdir} -name '*.so*'
+find -type f -and -not -name '*.so*'
 
 # TODO:
 #find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
