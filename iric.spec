@@ -85,11 +85,10 @@ for lib in `ls -1 lib/install`; do
     cp -R $lib_src_dir/* master/external
 done
 
-install -d $RPM_BUILD_ROOT
-find -type f -and -not -name '*.so*'
-
-# TODO:
-#find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
+install -d $RPM_BUILD_ROOT%{_libdir}
+install lib/install/iriclib-a6a110f/release/lib/libiriclib.so $RPM_BUILD_ROOT%{_libdir}
+find -type f -and -name '*iric*' -and -not -name '*iric*.so*'
+find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 %post -p /sbin/ldconfig
 
@@ -98,7 +97,7 @@ find -type f -and -not -name '*.so*'
 
 %files
 %doc
-#%{_libdir}/*.so.*
+%{_libdir}/*.so
 
 %files devel
 %doc
