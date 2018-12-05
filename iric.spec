@@ -35,14 +35,6 @@ cp /root/Fastmech-BMI/bin/build-gcc-solver.sh .
 cp /root/Fastmech-BMI/bin/create-paths-pri-solver.sh .
 cp /root/Fastmech-BMI/bin/create-dirExt-prop-solver.sh .
 
-
-%build
-# TODO
-
-
-%install
-rm -rf $RPM_BUILD_ROOT
-
 . ./versions.sh
 
 # if SZip/Zlib/hdf5 source is not cached
@@ -73,8 +65,17 @@ if [ ! -f "%{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip" ]; then
 fi
 cp %{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip .
 
+
+%build
+# TODO: not sure if this is necessary in this section
+. ./versions.sh
+
 ./build-gcc-solver.sh
 
+%install
+rm -rf $RPM_BUILD_ROOT
+
+# TODO: might not be the appropriate section for this
 for lib in `ls -1 lib/install`; do
     echo "- $lib"
     if [ -d lib/install/$lib/release ]; then
