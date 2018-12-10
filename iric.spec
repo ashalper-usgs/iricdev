@@ -7,7 +7,7 @@ License:        BSD
 URL:            http://i-ric.org/en/introduction/
 Source0:        https://github.com/ashalper-usgs/iricdev/archive/master.zip
 
-BuildRequires:  make, coreutils
+BuildRequires:  make, coreutils, hdf5-devel
 
 %description
 iRICXXX (International River Interface Cooperative) is a river flow
@@ -31,26 +31,10 @@ developing applications that use %{name}.
 rm -rf master/external
 mkdir -p master/external
 
-cp /root/Fastmech-BMI/bin/build-gcc-solver.sh .
 cp /root/Fastmech-BMI/bin/create-paths-pri-solver.sh .
 cp /root/Fastmech-BMI/bin/create-dirExt-prop-solver.sh .
 
 . ./versions.sh
-
-# if SZip/Zlib/hdf5 source is not cached
-if [ ! -f "%{_tmppath}/hdf5-${HDF5_VER}.tar.gz" ]; then
-    # get it
-    MAJOR=$(echo ${HDF5_VER} | cut -d '.' -f 1)
-    MINOR=$(echo ${HDF5_VER} | cut -d '.' -f 2)
-    wget --no-check-certificate -O %{_tmppath}/SZip.tar.gz \
-	https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJOR}.${MINOR}/hdf5-${HDF5_VER}/cmake/SZip.tar.gz
-    wget --no-check-certificate -O %{_tmppath}/ZLib.tar.gz \
-	https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJOR}.${MINOR}/hdf5-${HDF5_VER}/cmake/ZLib.tar.gz
-    wget --no-check-certificate -O %{_tmppath}/hdf5-${HDF5_VER}.tar.gz \
-	https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJOR}.${MINOR}/hdf5-${HDF5_VER}/src/hdf5-${HDF5_VER}.tar.gz
-fi
-cp %{_tmppath}/SZip.tar.gz %{_tmppath}/ZLib.tar.gz \
-    %{_tmppath}/hdf5-${HDF5_VER}.tar.gz .
 
 if [ ! -f "%{_tmppath}/cgnslib_${CGNSLIB_VER}.tar.gz" ]; then
   wget --no-check-certificate \
@@ -70,7 +54,38 @@ cp %{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip .
 # TODO: not sure if this is necessary in this section
 . ./versions.sh
 
-./build-gcc-solver.sh
+# begin Fastmech-BMI/bin/build-gcc-solver.sh
+GENERATOR="Unix Makefiles"
+SGEN="gcc"
+
+export GENERATOR SGEN
+
+# begin iricdev/build-cgnslib.sh
+. ./versions.sh
+VER=$CGNSLIB_VER
+
+rm -rf lib/src/cgnslib-$VER
+rm -rf lib/build/cgnslib-$VER
+rm -rf lib/install/cgnslib-$VER
+
+mkdir -p lib/src
+cd lib/src
+tar xvzf ../../cgnslib_$VER.tar.gz
+mv cgnslib_$VER cgnslib-$VER
+cd ../..
+
+#ctest -S build-cgnslib.cmake -DCONF_DIR:STRING=debug   "-DCTEST_CMAKE_GENERATOR:STRING=${GENERATOR}" -C Debug   -VV -O ${SGEN}-cgnslib-debug.log
+ctest -S build-cgnslib.cmake -DCONF_DIR:STRING=release \
+    "-DCTEST_CMAKE_GENERATOR:STRING=${GENERATOR}" -C Release -VV \
+    -O ${SGEN}-cgnslib-release.log
+# end build-cgnslib.sh
+
+./build-iriclib.sh
+
+./create-paths-pri-solver.sh > paths.pri
+./create-dirExt-prop-solver.sh > dirExt.prop
+
+# end iricdev/build-cgnslib.sh
 
 %install
 rm -rf $RPM_BUILD_ROOT
