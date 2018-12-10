@@ -27,7 +27,7 @@ developing applications that use %{name}.
 
 
 %prep
-%setup -q -n master
+%setup -q -n iricdev-master
 rm -rf master/external
 mkdir -p master/external
 
@@ -60,7 +60,7 @@ fi
 cp %{_tmppath}/cgnslib_${CGNSLIB_VER}.tar.gz .
 
 if [ ! -f "%{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip" ]; then
-  wget --no-check-certificate -O iriclib-${IRICLIB_VER:0:7}.zip \
+  wget --no-check-certificate -O "%{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip" \
       https://github.com/i-RIC/iriclib/archive/${IRICLIB_VER}.zip
 fi
 cp %{_tmppath}/iriclib-${IRICLIB_VER:0:7}.zip .
@@ -108,5 +108,5 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %changelog
-* Tue Dec 4 2018 Andrew Halper <ashalper@usgs.gov> - 0.1-1
-- Built on CentOS.
+* Mon Dec 10 2018 Andrew Halper <ashalper@usgs.gov> - 0.1-1
+- Built on CentOS 7.
